@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FF Tournaments | Free Fire Matches (Solo, Duo, Squad, BR, CS, LW, 1v1, 4v4)</title>
+  <meta name="description" content="Play and host Free Fire tournaments: Solo, Duo, Squad, BR, CS, LW, 1v1, 4v4. 100% free entry. Responsive frontend demo."/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0f14; --bg2:#0f141b; --card:#121822; --muted:#9fb0c3;
+      --text:#e9f1ff; --pri:#ff7a1a; --pri-2:#ffb169; --acc:#00e0ff; --ok:#38e197; --danger:#ff4d4d;
+      --shadow:0 8px 28px rgba(0,0,0,.35);
+      --radius:14px;
+      --container:1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg) 0,var(--bg2) 100%);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{max-width:var(--container);margin:0 auto;padding:0 16px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;padding:12px 16px;border-radius:12px;font-weight:600;background:var(--pri);color:#111;transition:.2s}
+    .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+    .btn.outline{background:transparent;color:var(--text);border:1px solid #263244}
+    .btn.ghost{background:transparent;color:var(--text);opacity:.9}
+    .chip{padding:8px 12px;border:1px solid #243142;border-radius:999px;color:var(--muted);cursor:pointer;user-select:none}
+    .chip.active{background:rgba(255,122,26,.12);border-color:var(--pri);color:#ffd7b3}
+    .badge{padding:4px 8px;border-radius:999px;font-size:12px;display:inline-flex;align-items:center;gap:6px}
+    .b-open{background:rgba(56,225,151,.15);color:#8ff4c6}
+    .b-live{background:rgba(255,77,77,.15);color:#ff9b9b}
+    .b-upc{background:rgba(0,224,255,.15);color:#9beeff}
+    .b-done{background:rgba(158,167,183,.15);color:#cdd6e3}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(11,15,20,.7);backdrop-filter:blur(8px);border-bottom:1px solid #1a2330}
+    .nav-in{display:flex;align-items:center;justify-content:space-between;gap:12px;height:64px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.4px}
+    .brand i{color:var(--pri)}
+    .nav-links{display:flex;gap:14px;align-items:center}
+    .nav-links a{padding:8px 10px;border-radius:10px;color:#c9d6e6}
+    .nav-links a.active,.nav-links a:hover{background:#1a2330;color:#fff}
+    .nav-rt{display:flex;gap:10px;align-items:center}
+    .hamb{display:none}
+    .hero{padding:52px 0 16px;border-bottom:1px solid #1a2330;background:
+          radial-gradient(1200px 500px at 10% -10%, rgba(0,224,255,.12), transparent 50%),
+          radial-gradient(1000px 400px at 80% 0%, rgba(255,122,26,.14), transparent 55%)}
+    .hero-in{display:grid;grid-template-columns:1.2fr .8fr;gap:26px;align-items:center}
+    .h-title{font-size:clamp(28px,5vw,46px);line-height:1.1;margin:0}
+    .h-sub{color:#b6c5d8;max-width:600px}
+    .stat{display:flex;gap:18px;margin-top:14px}
+    .stat .box{background:#121822;border:1px solid #1c2735;border-radius:12px;padding:10px 12px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .card{background:var(--card);border:1px solid #1c2735;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card .title{font-weight:700}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;color:#bcd0e4;font-size:14px}
+    .card .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}
+    .filters{position:sticky;top:64px;z-index:20;background:linear-gradient(180deg,#0f141b,rgba(15,20,27,.85));backdrop-filter:blur(6px);border-bottom:1px solid #1a2330}
+    .filters-in{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:12px 0}
+    .search{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #243142;border-radius:12px;background:#101620}
+    .search input{background:transparent;border:none;outline:none;color:#e7f0ff;flex:1}
+    .page{display:none;padding:26px 0 60px}
+    .page.active{display:block}
+    .section-title{margin:8px 0 16px;font-size:22px}
+    .two{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+    .tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid #1c2735;border-radius:12px;overflow:hidden}
+    .tbl th,.tbl td{padding:12px 14px;border-bottom:1px solid #1c2735;text-align:left;font-size:14px}
+    .muted{color:#9fb0c3}
+    .empty{padding:18px;border:1px dashed #2b3a4d;border-radius:14px;color:#9fb0c3;text-align:center}
+    footer{border-top:1px solid #1a2330;color:#9fb0c3;padding:24px 0}
+    .note{font-size:12px;color:#99aabb}
+    /* modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;padding:18px;z-index:100}
+    .modal.show{display:grid}
+    .dialog{background:var(--card);border:1px solid #1c2735;border-radius:14px;max-width:640px;width:100%;box-shadow:var(--shadow)}
+    .dialog .hd{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid #1c2735}
+    .dialog .bd{padding:14px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field input,.field select,.field textarea{padding:12px;border-radius:10px;border:1px solid #243142;background:#0f151f;color:#eaf2ff;outline:none}
+    .actions{display:flex;justify-content:flex-end;gap:10px;padding:14px;border-top:1px solid #1c2735}
+    .mr-8{margin-right:8px}
+    .hidden{display:none!important}
+    /* responsive */
+    @media (max-width:1000px){.hero-in{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+    @media (max-width:680px){
+      .nav-links{display:none}
+      .hamb{display:inline-flex;background:#1a2330;border:1px solid #273144;border-radius:10px;padding:8px}
+      .grid{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr}
+      .brand span{display:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-in">
+      <a class="brand" href="#home"><i class="ri-flame-fill"></i><strong>FF Tournaments</strong><span class="note">Free Fire</span></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#home" data-link>Home</a>
+        <a href="#tournaments" data-link>Tournaments</a>
+        <a href="#leaderboard" data-link>Leaderboard</a>
+        <a href="#mymatches" data-link>My Matches</a>
+        <a href="#rules" data-link>Rules & FAQ</a>
+      </nav>
+      <div class="nav-rt">
+        <button id="themeBtn" class="btn ghost" title="Toggle theme"><i class="ri-moon-line"></i></button>
+        <button id="loginBtn" class="btn outline"><i class="ri-user-line"></i><span>Login</span></button>
+        <div id="userBox" class="hidden"></div>
+        <button class="hamb" id="hamb"><i class="ri-menu-line"></i></button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero page active" id="home">
+    <div class="container hero-in">
+      <div>
+        <h1 class="h-title">Free Fire Tournaments — Free Entry, Daily Matches</h1>
+        <p class="h-sub">Solo, Duo, Squad — BR, CS, LW, 1v1 & 4v4. Join free tournaments, get room ID before the match, track results and leaderboard. Not affiliated with Garena.</p>
+        <div style="display:flex;gap:10px;margin:18px 0">
+          <a class="btn" href="#tournaments"><i class="ri-sword-line"></i> Explore Tournaments</a>
+          <a class="btn outline" href="#rules"><i class="ri-shield-star-line"></i> Rules</a>
+        </div>
+        <div class="stat">
+          <div class="box"><div class="muted">Today’s Matches</div><div id="statsToday" style="font-weight:800;font-size:22px">—</div></div>
+          <div class="box"><div class="muted">Registered Players</div><div id="statsPlayers" style="font-weight:800;font-size:22px">—</div></div>
+          <div class="box"><div class="muted">Free Entry</div><div style="font-weight:800;font-size:22px;color:#8ff4c6">Yes</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="height:100%">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div class="muted">Next match</div>
+              <div id="nextMatchTitle" style="font-weight:700">—</div>
+            </div>
+            <span class="badge b-upc"><i class="ri-time-line"></i><span id="nextCountdown">—</span></span>
+          </div>
+          <div class="meta" id="nextMatchMeta"></div>
+          <div class="note">Tip: Room ID/Pwd unlock 10 minutes before start for registered players.</div>
+          <div style="margin-top:auto;display:flex;gap:10px">
+            <a href="#tournaments" class="btn"><i class="ri-rocket-2-fill"></i>Join Now</a>
+            <a href="#mymatches" class="btn outline">My Matches</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="filters" id="filters">
+    <div class="container filters-in">
+      <div class="search"><i class="ri-search-line"></i><input id="q" placeholder="Search tournaments or mode (e.g. BR, CS, 1v1)"></div>
+      <div id="chipsType" style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="chip" data-chip="type:solo">Solo</span>
+        <span class="chip" data-chip="type:duo">Duo</span>
+        <span class="chip" data-chip="type:squad">Squad</span>
+      </div>
+      <div id="chipsMode" style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="chip" data-chip="mode:BR">BR</span>
+        <span class="chip" data-chip="mode:CS">CS</span>
+        <span class="chip" data-chip="mode:LW">LW</span>
+        <span class="chip" data-chip="mode:1v1">1v1</span>
+        <span class="chip" data-chip="mode:4v4">4v4</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="chip" data-chip="open:1">Registration Open</span>
+        <span class="chip" data-chip="live:1">Live</span>
+        <span class="chip" data-chip="done:1">Completed</span>
+      </div>
+      <button class="btn ghost" id="resetFilters"><i class="ri-refresh-line"></i> Reset</button>
+    </div>
+  </div>
+
+  <section class="page" id="tournaments">
+    <div class="container">
+      <h3 class="section-title">All Tournaments</h3>
+      <div class="grid" id="cards"></div>
+    </div>
+  </section>
+
+  <section class="page" id="leaderboard">
+    <div class="container">
+      <h3 class="section-title">Leaderboard</h3>
+      <div class="two">
+        <div>
+          <table class="tbl" id="lbTable">
+            <thead><tr><th>#</th><th>Player/Team</th><th>Kills</th><th>Points</th><th>Tournament</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="title">How points work</div>
+          <ul class="muted">
+            <li>Placement + Kills = Total points</li>
+            <li>Win = 12 pts, 2nd = 9, 3rd = 7, others descending</li>
+            <li>Each kill = 1 pt</li>
+          </ul>
+          <div class="note">Tip: Leaderboard here is demo data. Hook your backend to update live.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="mymatches">
+    <div class="container">
+      <h3 class="section-title">My Matches</h3>
+      <div id="myList"></div>
+    </div>
+  </section>
+
+  <section class="page" id="rules">
+    <div class="container">
+      <h3 class="section-title">Rules & FAQ</h3>
+      <div class="card">
+        <strong>Basic rules</strong>
+        <ul class="muted">
+          <li>Free entry for all tournaments.</li>
+          <li>Use your original Free Fire UID. Wrong UID = DQ.</li>
+          <li>Check‑in starts 15 minutes before the match.</li>
+          <li>Room ID & Password unlock 10 minutes before start for registered players only.</li>
+          <li>No hacks, emulators only if allowed by host; toxic behavior = ban.</li>
+        </ul>
+        <strong>Formats supported</strong>
+        <div class="meta">Solo, Duo, Squad • BR, CS, LW • 1v1, 4v4</div>
+        <p class="note">Disclaimer: This site is a fan‑made frontend demo and is not affiliated with or endorsed by Garena or Free Fire.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+      <div>© <span id="yr"></span> FF Tournaments • All free matches</div>
+      
+    </div>
+  </footer>
+
+  <!-- Join modal -->
+  <div class="modal" id="joinModal">
+    <div class="dialog">
+      <div class="hd">
+        <div style="display:flex;align-items:center;gap:8px"><i class="ri-sword-line"></i>
+          <strong id="jmTitle">Join</strong></div>
+        <button class="btn ghost" id="closeJM"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="bd">
+        <form id="joinForm">
+          <div class="muted" id="jmMeta"></div>
+          <div class="row" style="margin-top:12px">
+            <div class="field"><label>In‑Game Name (IGN)</label><input required name="ign" placeholder="Your IGN"></div>
+            <div class="field"><label>Free Fire UID</label><input required name="uid" placeholder="123456789"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Contact (WhatsApp/Discord)</label><input name="contact" placeholder="+91… or username"></div>
+            <div class="field teamNameWrap hidden"><label>Team Name</label><input name="teamName" placeholder="Your team name"></div>
+          </div>
+          <div id="teamWrap" class="hidden"></div>
+          <div style="margin-top:8px" class="note">By joining, you accept the rules and fair‑play policy.</div>
+          <input type="hidden" name="tid" id="jmTid">
+        </form>
+      </div>
+      <div class="actions">
+        <button class="btn outline" id="cancelJM">Cancel</button>
+        <button class="btn" id="submitJM"><i class="ri-rocket-2-fill"></i> Join Free</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login modal -->
+  <div class="modal" id="authModal">
+    <div class="dialog" style="max-width:460px">
+      <div class="hd">
+        <strong><i class="ri-user-line mr-8"></i>Login / Signup</strong>
+        <button class="btn ghost" id="closeAuth"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="bd">
+        <form id="authForm">
+          <div class="field"><label>Username</label><input required name="username" placeholder="yourname"></div>
+          <div class="row"><div class="field"><label>Email (optional)</label><input name="email" placeholder="you@email.com"></div>
+          <div class="field"><label>Phone (optional)</label><input name="phone" placeholder="+91…"></div></div>
+          <div class="note">Local demo: we save basic profile in your browser (no server).</div>
+        </form>
+      </div>
+      <div class="actions">
+        <button class="btn outline" id="cancelAuth">Cancel</button>
+        <button class="btn" id="submitAuth"><i class="ri-login-circle-line"></i> Continue</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- Demo data ----------
+  const now = Date.now();
+  const hours = h => 3600e3*h;
+  const tournaments = [
+    {id:'T1001', title:'Bermuda Bash', type:'solo', mode:'BR', map:'Bermuda', start: now+hours(3), duration:90, checkin:15, maxTeams:100, filled:57, tags:['free','beginner']},
+    {id:'T1002', title:'Clash Kings', type:'squad', mode:'CS', map:'Random', start: now+hours(1.5), duration:60, checkin:15, maxTeams:24, filled:19, tags:['4v4']},
+    {id:'T1003', title:'1v1 Arena', type:'solo', mode:'1v1', map:'El Pastelo', start: now+hours(0.6), duration:45, checkin:15, maxTeams:64, filled:61, tags:['duel']},
+    {id:'T1004', title:'Duo Domination', type:'duo', mode:'BR', map:'Purgatory', start: now+hours(6), duration:90, checkin:20, maxTeams:50, filled:33, tags:['free']},
+    {id:'T1005', title:'Lone Wolf Cup', type:'solo', mode:'LW', map:'Lone Wolf', start: now+hours(4), duration:50, checkin:10, maxTeams:64, filled:22, tags:['fast']},
+    {id:'T1006', title:'4v4 Pro Rush', type:'squad', mode:'4v4', map:'Bermuda', start: now+hours(-0.2), duration:60, checkin:15, maxTeams:16, filled:16, tags:['live']},
+    {id:'T1007', title:'Night Squad BR', type:'squad', mode:'BR', map:'Kalahari', start: now+hours(10), duration:90, checkin:20, maxTeams:25, filled:7, tags:['late']},
+    {id:'T1008', title:'Duo CS Showdown', type:'duo', mode:'CS', map:'Random', start: now+hours(-5), duration:60, checkin:15, maxTeams:32, filled:32, tags:['done']}
+  ];
+
+  const leaderboard = [
+    {name:'Alpha Squad', kills:28, pts:68, tid:'T1002'},
+    {name:'SoloHunter', kills:19, pts:46, tid:'T1001'},
+    {name:'Clutch Gods', kills:24, pts:61, tid:'T1006'},
+    {name:'1TapKing', kills:16, pts:40, tid:'T1003'},
+    {name:'LWReaper', kills:14, pts:38, tid:'T1005'},
+  ];
+
+  // ---------- State ----------
+  const state = {
+    user: JSON.parse(localStorage.getItem('ff_user') || 'null'),
+    regs: JSON.parse(localStorage.getItem('ff_regs') || '{}'),
+    theme: localStorage.getItem('ff_theme') || 'dark'
+  };
+
+  // ---------- Helpers ----------
+  const $ = (sel, el=document) => el.querySelector(sel);
+  const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
+  const fmtTime = ts => {
+    const d = new Date(ts);
+    return d.toLocaleString([], {hour:'2-digit',minute:'2-digit'}) + " • " + d.toLocaleDateString();
+  };
+  const statusOf = t => {
+    const start = t.start, end = t.start + t.duration*60*1000;
+    if (Date.now() < start - 60*1000) return 'upcoming';
+    if (Date.now() >= start && Date.now() <= end) return 'live';
+    if (Date.now() < start && start - Date.now() <= 60*1000) return 'open'; // about to start
+    return (Date.now() < start) ? 'open' : 'done';
+  };
+  const teamSize = t => t.type==='solo'?1: t.type==='duo'?2: t.type==='squad'?4: (t.mode==='1v1'?1: t.mode==='4v4'?4:1);
+  const roomInfo = t => {
+    const unlock = t.start - 10*60*1000;
+    if (!state.regs[t.id]) return null;
+    if (Date.now() >= unlock) return {room: t.id+'-RM', pass:'FREE'+t.id.slice(-3)};
+    return null;
+  };
+  const saveState = () => {
+    localStorage.setItem('ff_user', JSON.stringify(state.user));
+    localStorage.setItem('ff_regs', JSON.stringify(state.regs));
+    localStorage.setItem('ff_theme', state.theme);
+  };
+
+  // ---------- Theme ----------
+  function applyTheme(){
+    document.body.dataset.theme = state.theme;
+    if(state.theme==='light'){
+      document.documentElement.style.setProperty('--bg','#f6f8fc');
+      document.documentElement.style.setProperty('--bg2','#eef3fb');
+      document.documentElement.style.setProperty('--card','#ffffff');
+      document.documentElement.style.setProperty('--text','#0b0f14');
+      document.documentElement.style.setProperty('--muted','#4a5a6e');
+    }else{
+      document.documentElement.style.setProperty('--bg','#0b0f14');
+      document.documentElement.style.setProperty('--bg2','#0f141b');
+      document.documentElement.style.setProperty('--card','#121822');
+      document.documentElement.style.setProperty('--text','#e9f1ff');
+      document.documentElement.style.setProperty('--muted','#9fb0c3');
+    }
+    $('#themeBtn').innerHTML = state.theme==='light' ? '<i class="ri-moon-line"></i>' : '<i class="ri-sun-line"></i>';
+  }
+
+  // ---------- Nav / Router ----------
+  const pages = ['home','tournaments','leaderboard','mymatches','rules'];
+  function route(){
+    const hash = location.hash.replace('#','') || 'home';
+    pages.forEach(p => $('#'+p).classList.toggle('active', p===hash));
+    $$('#navLinks a').forEach(a => a.classList.toggle('active', a.getAttribute('href')==='#'+hash));
+    // show filters only on tournaments
+    $('#filters').style.display = (hash==='tournaments') ? 'block':'none';
+    if(hash==='tournaments') renderCards();
+    if(hash==='leaderboard') renderLeaderboard();
+    if(hash==='mymatches') renderMyMatches();
+    if(hash==='home') renderHome();
+  }
+  window.addEventListener('hashchange', route);
+
+  // ---------- Auth UI ----------
+  function refreshAuthUI(){
+    const box = $('#userBox');
+    const loginBtn = $('#loginBtn');
+    if(state.user){
+      loginBtn.classList.add('hidden');
+      box.classList.remove('hidden');
+      box.innerHTML = `
+        <div class="btn outline" style="gap:10px"><i class="ri-user-3-line"></i>
+          <span>@${state.user.username}</span>
+          <span class="badge" style="background:#1a2330;color:#a7bad2;margin-left:8px">${Object.keys(state.regs).length} joined</span>
+        </div>
+        <button class="btn ghost" id="logoutBtn" title="Logout"><i class="ri-logout-box-r-line"></i></button>`;
+      $('#logoutBtn').onclick = ()=>{ state.user=null; saveState(); refreshAuthUI(); };
+    }else{
+      box.classList.add('hidden');
+      loginBtn.classList.remove('hidden');
+    }
+  }
+
+  // ---------- Cards / Filters ----------
+  const filters = {q:'', type:new Set(), mode:new Set(), open:false, live:false, done:false};
+  function matchFilter(t){
+    const st = statusOf(t);
+    const q = filters.q.toLowerCase();
+    const text = `${t.title} ${t.mode} ${t.type} ${t.map}`.toLowerCase();
+    const okQ = !q || text.includes(q);
+    const okType = filters.type.size===0 || filters.type.has(t.type);
+    const okMode = filters.mode.size===0 || filters.mode.has(t.mode);
+    const okState = (!filters.open && !filters.live && !filters.done) ||
+                    (filters.open && (st==='open'||st==='upcoming')) ||
+                    (filters.live && st==='live') ||
+                    (filters.done && st==='done');
+    return okQ && okType && okMode && okState;
+  }
+  function cardHTML(t){
+    const st = statusOf(t);
+    const badge = st==='live' ? '<span class="badge b-live"><i class="ri-pulse-line"></i>Live</span>' :
+                  st==='upcoming' || st==='open' ? '<span class="badge b-upc"><i class="ri-time-line"></i>Upcoming</span>' :
+                  '<span class="badge b-done"><i class="ri-check-double-line"></i>Completed</span>';
+    const ts = fmtTime(t.start);
+    const size = teamSize(t);
+    const registered = !!state.regs[t.id];
+    const extra = registered ? '<span class="badge b-open"><i class="ri-check-line"></i>Joined</span>' : '';
+    const add = registered ? 1:0;
+    const left = Math.max(0, t.maxTeams - (t.filled + add));
+    return `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="title">${t.title}</div>
+          <div style="display:flex;gap:6px">${badge} ${extra}</div>
+        </div>
+        <div class="meta">
+          <span><i class="ri-map-pin-line"></i> ${t.map}</span>
+          <span><i class="ri-gamepad-line"></i> ${t.mode}</span>
+          <span><i class="ri-team-line"></i> ${t.type.toUpperCase()} • ${size}p</span>
+          <span><i class="ri-timer-line"></i> ${ts}</span>
+          <span><i class="ri-group-line"></i> Slots left: ${left}</span>
+          <span><i class="ri-currency-line"></i> Entry: Free</span>
+        </div>
+        <div class="foot">
+          <div class="muted">Check‑in ${t.checkin} min before • Duration ${t.duration} min</div>
+          ${st==='done' ? '<button class="btn outline" data-view="'+t.id+'"><i class="ri-bar-chart-2-line"></i> View Result</button>':
+            `<button class="btn" data-join="${t.id}" ${left<=0?'disabled':''}><i class="ri-rocket-2-line"></i> ${registered?'Joined':'Join Free'}</button>`}
+        </div>
+      </div>
+    `;
+  }
+  function renderCards(){
+    const holder = $('#cards');
+    holder.innerHTML = tournaments.filter(matchFilter).sort((a,b)=>a.start-b.start).map(cardHTML).join('') || `<div class="empty">No tournaments match your filters.</div>`;
+    $$('[data-join]').forEach(b => b.onclick = ()=> openJoin(b.dataset.join));
+    $$('[data-view]').forEach(b => b.onclick = ()=> { location.hash='leaderboard'; setTimeout(()=>{ highlightRow(b.dataset.view); },150); });
+    // stats
+    const today = new Date().toDateString();
+    const todayCount = tournaments.filter(t => new Date(t.start).toDateString()===today).length;
+    $('#statsToday').textContent = todayCount;
+    $('#statsPlayers').textContent = tournaments.reduce((sum,t)=> sum + (t.type==='solo'?t.filled: t.filled*teamSize(t)), 0);
+  }
+
+  // ---------- Home ----------
+  function renderHome(){
+    const upcoming = tournaments.filter(t => statusOf(t)!=='done').sort((a,b)=>a.start-b.start)[0];
+    if(!upcoming) return;
+    $('#nextMatchTitle').textContent = `${upcoming.title} • ${upcoming.type.toUpperCase()} ${upcoming.mode}`;
+    $('#nextMatchMeta').innerHTML = `<i class="ri-calendar-line"></i> ${fmtTime(upcoming.start)} • Map ${upcoming.map} • Slots ${upcoming.maxTeams - upcoming.filled}`;
+    const setCD = ()=>{
+      const diff = Math.max(0, upcoming.start - Date.now());
+      const h = Math.floor(diff/3600e3), m = Math.floor((diff%3600e3)/60e3), s = Math.floor((diff%60e3)/1000);
+      $('#nextCountdown').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    };
+    setCD(); clearInterval(window._cd); window._cd = setInterval(setCD,1000);
+  }
+
+  // ---------- Leaderboard ----------
+  function renderLeaderboard(){
+    const tb = $('#lbTable tbody');
+    tb.innerHTML = leaderboard.map((r,i)=> `<tr data-tid="${r.tid}"><td>${i+1}</td><td>${r.name}</td><td>${r.kills}</td><td>${r.pts}</td><td>${r.tid}</td></tr>`).join('');
+  }
+  function highlightRow(tid){
+    $$('#lbTable tbody tr').forEach(tr=>{
+      tr.style.background = tr.dataset.tid===tid ? 'rgba(0,224,255,.10)':'transparent';
+    });
+  }
+
+  // ---------- My Matches ----------
+  function renderMyMatches(){
+    const box = $('#myList');
+    if(!state.user){ box.innerHTML = `<div class="empty">Login to see your joined matches.</div>`; return; }
+    const ids = Object.keys(state.regs);
+    if(ids.length===0){ box.innerHTML = `<div class="empty">You haven’t joined any match yet.</div>`; return; }
+    box.innerHTML = ids.map(id=>{
+      const t = tournaments.find(x=>x.id===id), r = state.regs[id];
+      const ri = roomInfo(t);
+      return `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="title">${t.title} <span class="muted">• ${t.type.toUpperCase()} ${t.mode}</span></div>
+            <span class="badge ${statusOf(t)==='live'?'b-live':statusOf(t)==='done'?'b-done':'b-upc'}">${statusOf(t).toUpperCase()}</span>
+          </div>
+          <div class="meta"><span><i class="ri-calendar-line"></i> ${fmtTime(t.start)}</span><span><i class="ri-map-pin-line"></i> ${t.map}</span></div>
+          <div class="muted">Registered as: <strong>${r.teamName ? r.teamName : r.ign}</strong> • UID ${r.uid}</div>
+          ${r.members && r.members.length ? `<div class="muted">Members: ${r.members.map(m=>m.ign+' ('+m.uid+')').join(', ')}</div>`:''}
+          ${ri ? `<div style="margin-top:10px"><span class="badge b-open"><i class="ri-door-open-line"></i> Room: ${ri.room}</span> <span class="badge b-open">Pwd: ${ri.pass}</span></div>` : `<div class="note" style="margin-top:8px">Room ID/Pwd unlock 10 minutes before start.</div>`}
+          <div class="foot">
+            <div></div>
+            <button class="btn outline" data-leave="${t.id}"><i class="ri-close-circle-line"></i> Leave</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    $$('[data-leave]').forEach(b=> b.onclick = ()=>{
+      const id = b.dataset.leave; if(confirm('Leave this tournament?')){ delete state.regs[id]; saveState(); renderMyMatches(); renderCards(); }
+    });
+  }
+
+  // ---------- Join flow ----------
+  function openJoin(id){
+    const t = tournaments.find(x=>x.id===id);
+    if(!t) return;
+    if(!state.user){ openAuth(); return; }
+    const left = Math.max(0, t.maxTeams - (t.filled + (state.regs[id]?1:0)));
+    if(left<=0){ alert('Slots are full.'); return; }
+    $('#jmTitle').textContent = `Join: ${t.title} (${t.type.toUpperCase()} ${t.mode})`;
+    $('#jmMeta').textContent = `Start: ${fmtTime(t.start)} • Map: ${t.map} • Team size: ${teamSize(t)}`;
+    $('#jmTid').value = id;
+
+    const tsize = teamSize(t);
+    const teamWrap = $('#teamWrap');
+    const teamNameWrap = $('.teamNameWrap');
+    teamWrap.innerHTML = '';
+    teamWrap.classList.toggle('hidden', tsize===1);
+    teamNameWrap.classList.toggle('hidden', tsize===1);
+    if(tsize>1){
+      // create member fields (excluding captain)
+      for(let i=2;i<=tsize;i++){
+        const div = document.createElement('div');
+        div.className = 'row';
+        div.innerHTML = `
+          <div class="field"><label>Member ${i} IGN</label><input name="m${i}ign" placeholder="IGN ${i}"></div>
+          <div class="field"><label>Member ${i} UID</label><input name="m${i}uid" placeholder="UID ${i}"></div>`;
+        teamWrap.appendChild(div);
+      }
+    }
+    $('#joinModal').classList.add('show');
+  }
+
+  // ---------- Auth modal ----------
+  function openAuth(){ $('#authModal').classList.add('show'); $('#authForm').reset(); }
+
+  // ---------- Events ----------
+  $('#themeBtn').onclick = ()=>{ state.theme = (state.theme==='dark'?'light':'dark'); saveState(); applyTheme(); };
+  $('#loginBtn').onclick = openAuth;
+  $('#hamb').onclick = ()=> $('#navLinks').classList.toggle('show');
+
+  $('#closeJM').onclick = ()=> $('#joinModal').classList.remove('show');
+  $('#cancelJM').onclick = ()=> $('#joinModal').classList.remove('show');
+  $('#submitJM').onclick = (e)=>{
+    e.preventDefault();
+    const f = new FormData($('#joinForm'));
+    const id = f.get('tid'); const t = tournaments.find(x=>x.id===id);
+    const tsize = teamSize(t);
+    const reg = {ign:f.get('ign'), uid:f.get('uid'), contact:f.get('contact')||'', teamName: f.get('teamName')||'', members:[]};
+    if(tsize>1){
+      for(let i=2;i<=tsize;i++){
+        const ign = f.get(`m${i}ign`)||''; const uid = f.get(`m${i}uid`)||'';
+        if(ign && uid) reg.members.push({ign,uid});
+      }
+    }
+    state.regs[id] = reg; saveState();
+    $('#joinModal').classList.remove('show');
+    alert('Joined successfully! Check My Matches for details.');
+    renderCards(); renderMyMatches();
+  };
+
+  $('#closeAuth').onclick = ()=> $('#authModal').classList.remove('show');
+  $('#cancelAuth').onclick = ()=> $('#authModal').classList.remove('show');
+  $('#submitAuth').onclick = (e)=>{
+    e.preventDefault();
+    const f = new FormData($('#authForm'));
+    const username = String(f.get('username')||'').trim();
+    if(!username) return alert('Enter username');
+    state.user = {username, email:f.get('email')||'', phone:f.get('phone')||''};
+    saveState(); refreshAuthUI(); $('#authModal').classList.remove('show'); renderMyMatches();
+  };
+
+  // Filters
+  $('#q').oninput = (e)=>{ filters.q = e.target.value; renderCards(); };
+  $$('#chipsType .chip, #chipsMode .chip, [data-chip^="open"], [data-chip^="live"], [data-chip^="done"]').forEach(ch=>{
+    ch.onclick = ()=>{
+      const [key,val] = ch.dataset.chip.split(':');
+      if(key==='type' || key==='mode'){
+        const set = filters[key]; set.has(val)?set.delete(val):set.add(val);
+        ch.classList.toggle('active');
+      }else{
+        filters[key] = !filters[key]; ch.classList.toggle('active');
+      }
+      renderCards();
+    };
+  });
+  $('#resetFilters').onclick = ()=>{
+    filters.q=''; $('#q').value='';
+    filters.type.clear(); filters.mode.clear(); filters.open=false; filters.live=false; filters.done=false;
+    $$('.chip').forEach(c=> c.classList.remove('active'));
+    renderCards();
+  };
+
+  // ---------- Init ----------
+  (function init(){
+    applyTheme();
+    refreshAuthUI();
+    route();
+    renderCards();
+    renderLeaderboard();
+    renderHome();
+    $('#yr').textContent = new Date().getFullYear();
+    // home countdown refresh
+    setInterval(()=>{ if(location.hash==='#home' || location.hash==='' ) renderHome(); }, 1000);
+  })();
+</script>
+</body>
+</html>
